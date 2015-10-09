@@ -1,9 +1,9 @@
 ---
 # tasks file for docker.ubuntu
-- name: Fail if not a new release of Ubuntu
-  fail:
-    msg: "{{ ansible_distribution_version }} is not an acceptable version of Ubuntu for this role"
-  when: ansible_distribution_version|version_compare(12.04, '<') or ansible_distribution_version|version_compare(12.10, '=')
+#- name: Fail if not a new release of Ubuntu
+#  fail:
+#    msg: "{{ ansible_distribution_version }} is not an acceptable version of Ubuntu for this role"
+#  when: ansible_distribution_version|version_compare(12.04, '<') or ansible_distribution_version|version_compare(12.10, '=')
 
 - name: Update kernel, kernel extras, Xorg pkgs, and related tasks
   include: kernel_check_and_update.yml
@@ -28,16 +28,16 @@
     update_cache: yes
     cache_valid_time: 600
 
-- name: Set docker daemon options
-  copy:
-    content: "DOCKER_OPTS=\"{{ docker_opts.rstrip('\n') }}\""
-    dest: /etc/default/docker
-    owner: root
-    group: root
-    mode: 0644
-  notify:
-    - Reload docker
-  when: docker_opts != "" and ansible_distribution_version|version_compare(15.04, '<')
+#- name: Set docker daemon options
+#  copy:
+#    content: "DOCKER_OPTS=\"{{ docker_opts.rstrip('\n') }}\""
+#    dest: /etc/default/docker
+#    owner: root
+#    group: root
+#    mode: 0644
+#  notify:
+#    - Reload docker
+#  when: docker_opts != "" and ansible_distribution_version|version_compare(15.04, '<')
 
 - name: Create systemd configuration directory for Docker service (systemd)
   file: 
@@ -46,13 +46,15 @@
     owner: root
     group: root
     mode: 0755 
-  when: docker_opts != "" and ansible_distribution_version|version_compare(15.04, '>=')
+  #when: docker_opts != "" and ansible_distribution_version|version_compare(15.04, '>=')
 
 - name: Set docker daemon options (systemd)
   copy:
     content: |
       [Service]
       Environment="DOCKER_OPTS={{ docker_opts.rstrip('\n') }}"
+      Environment="HTTP_PROXY={{ proxy_env.http_proxy }}"
+      Environment="HTTPS_PROXY={{proxy_env.https_proxy }}"
     dest: /etc/systemd/system/docker.service.d/env.conf
     owner: root
     group: root
@@ -60,7 +62,7 @@
   notify:
     - Reload systemd
     - Restart docker
-  when: docker_opts != "" and ansible_distribution_version|version_compare(15.04, '>=')
+  #when: docker_opts != "" and ansible_distribution_version|version_compare(15.04, '>=')
 
 - name: Ensure docker daemon options used (systemd)
   lineinfile:
@@ -70,7 +72,7 @@
   notify:
     - Reload systemd
     - Restart docker
-  when: docker_opts != "" and ansible_distribution_version|version_compare(15.04, '>=')
+  #when: docker_opts != "" and ansible_distribution_version|version_compare(15.04, '>=')
 
 - name: Fix DNS in docker.io
   lineinfile:

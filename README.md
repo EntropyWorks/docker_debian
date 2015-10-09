@@ -6,10 +6,10 @@ forked from angstwad/docker.ubuntu to run only on Debian. This is a tempory thin
 **Example Play**:
 ```
 ---
-- name: Run docker.ubuntu
+- name: Run docker_debian
   hosts: docker
   roles:
-    - docker.ubuntu
+    - docker_debian
 ```
 
 Overriding the role's default variables is also pretty straightforward:
